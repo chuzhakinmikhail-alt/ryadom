@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Рядом — доска объявлений</title>
+<style>
+:root{--bg:#fff;--fg:#111;--mut:#767676;--line:#e3e3e3;--red:#e8332e;--card:#f3f3f1;--gold:#f2b705;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141414;--fg:#f1f1f1;--mut:#9a9a9a;--line:#2d2d2d;--card:#1d1d1d}}
+:root[data-theme="dark"]{--bg:#141414;--fg:#f1f1f1;--mut:#9a9a9a;--line:#2d2d2d;--card:#1d1d1d}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 "Helvetica Neue",Helvetica,Arial,sans-serif;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+a{color:inherit}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);border-bottom:1px solid var(--line);z-index:9;display:flex;align-items:center;gap:20px;padding:12px 20px;overflow-x:auto;height:53px}
+.logo{font-weight:800;font-size:20px;text-decoration:none;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.logo i{width:14px;height:14px;background:var(--red);border-radius:50%;animation:beat 2.4s infinite}
+@keyframes beat{50%{transform:scale(1.5)}}
+nav{display:flex;gap:18px;margin-left:auto;white-space:nowrap}
+nav a{text-decoration:none;color:var(--mut);font-size:15px;padding-bottom:2px;background:linear-gradient(var(--red),var(--red)) 0 100%/0 2px no-repeat;transition:background-size .3s,color .3s}
+nav a.on,nav a:hover{color:var(--fg);background-size:100% 2px}
+main{max-width:1100px;margin:0 auto;padding:32px 20px 80px}
+h1{font-size:clamp(38px,9vw,92px);line-height:.98;letter-spacing:-.035em;margin:0 0 24px;font-weight:800}
+h2{font-size:clamp(26px,4.5vw,40px);letter-spacing:-.02em;margin:48px 0 16px;line-height:1.1}
+h3{margin:0 0 4px;font-size:19px;line-height:1.2}
+.mut{color:var(--mut);font-size:14px}
+.lead{font-size:clamp(18px,2.4vw,24px);max-width:600px;margin:0 0 28px}
+/* Появление при прокрутке */
+.rv{opacity:0;transform:translateY(36px);transition:opacity .7s cubic-bezier(.2,.7,.2,1) var(--d,0ms),transform .7s cubic-bezier(.2,.7,.2,1) var(--d,0ms)}
+.rv[data-a="scale"]{transform:scale(.9)}.rv[data-a="left"]{transform:translateX(-48px)}
+.rv.in{opacity:1;transform:none}
+.pg{animation:pg .45s ease}@keyframes pg{from{opacity:0;transform:translateY(14px)}}
+/* Герой с параллаксом */
+.hero{position:relative;overflow:hidden;padding:40px 0 20px;min-height:380px}
+.blob{position:absolute;border-radius:50%;z-index:-1;will-change:transform}
+.b1{width:340px;height:340px;background:var(--red);right:-60px;top:-40px;opacity:.9}
+.b2{width:180px;height:180px;background:#2c5cff;right:200px;top:220px}
+.b3{width:90px;height:90px;background:var(--gold);right:40px;top:300px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:24px 0}
+.stat{border-top:3px solid var(--fg);padding-top:10px;font-size:14px;color:var(--mut)}
+.stat b{display:block;font-size:clamp(32px,6vw,56px);color:var(--fg);letter-spacing:-.03em;line-height:1}
+/* Пошаговый блок (как в Tilda): секция высокая, внутри липкая сцена */
+.steps{height:420vh;margin:60px 0}
+.sticky{position:sticky;top:calc(53px + env(safe-area-inset-top,0px));height:calc(100vh - 80px);min-height:420px;display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center}
+.sl h2{margin:0 0 16px}
+.bar{height:3px;background:var(--line);margin-bottom:16px}.bar i{display:block;height:100%;width:0;background:var(--red)}
+.stp{padding:12px 0 12px 16px;border-left:3px solid var(--line);opacity:.35;transition:all .5s}
+.stp.on{opacity:1;border-color:var(--red);padding-left:24px}
+.stp b{font-size:clamp(18px,2.5vw,26px);display:block}
+.sp{position:relative;height:min(60vh,440px)}
+.sv{position:absolute;inset:0;border-radius:6px;color:#fff;padding:28px;display:flex;flex-direction:column;justify-content:flex-end;opacity:0;transform:translateY(60px) scale(.96);transition:all .7s cubic-bezier(.2,.7,.2,1)}
+.sv.on{opacity:1;transform:none}.sv.past{opacity:0;transform:translateY(-60px) scale(.96)}
+.sv span{font-size:clamp(90px,18vw,180px);font-weight:800;line-height:.9;letter-spacing:-.05em}
+.sv p{margin:8px 0 0;font-size:18px;max-width:320px}
+@media(max-width:720px){.sticky{grid-template-columns:1fr;gap:14px;align-content:start;padding-top:10px}.sp{order:-1;height:34vh}.stp{padding:6px 0 6px 12px}.sv span{font-size:80px}}
+/* Карточки */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}
+.card{display:flex;flex-direction:column;background:var(--card);border-radius:5px;overflow:hidden;text-decoration:none}
+.card.in:hover{transform:translateY(-8px);box-shadow:0 14px 28px rgba(0,0,0,.14);transition-delay:0ms}
+.card .im{overflow:hidden}.card .ph{transition:transform .5s}.card:hover .ph{transform:scale(1.08)}
+.card .b{padding:14px;display:flex;flex-direction:column;gap:4px}
+.ph{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:72px;font-weight:800;color:#fff;background-size:cover;background-position:center}
+.price{font-size:22px;font-weight:800}
+.sk{height:270px;border-radius:5px;background:linear-gradient(100deg,var(--card) 30%,var(--line) 50%,var(--card) 70%) 0 0/300% 100%;animation:sk 1.2s infinite linear}
+@keyframes sk{to{background-position:-300% 0}}
+.row{padding:18px 0;border-bottom:1px solid var(--line)}
+button,.btn{font:inherit;background:var(--fg);color:var(--bg);border:0;border-radius:3px;padding:10px 18px;cursor:pointer;text-decoration:none;display:inline-block;transition:transform .15s,box-shadow .2s,background .2s}
+button:hover,.btn:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.2)}button:active,.btn:active{transform:scale(.95)}
+button.red,.btn.red{background:var(--red);color:#fff}
+button.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+button.sm{padding:5px 10px;font-size:13px}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+input,textarea,select{font:inherit;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:3px;background:var(--bg);color:var(--fg);margin:4px 0 12px;transition:border-color .2s,box-shadow .2s}
+input:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(232,51,46,.15)}
+label{font-size:14px;color:var(--mut)}form{max-width:560px}
+.av{width:44px;height:44px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none;background-size:cover;background-position:center}
+.banner{height:220px;border-radius:5px;overflow:hidden;position:relative}
+.banner div{position:absolute;inset:-60px 0;background:linear-gradient(120deg,var(--red),#2c5cff);background-size:cover;background-position:center}
+.pf{display:flex;gap:16px;align-items:flex-end;margin:-40px 0 16px 20px;position:relative}
+.pf .av{width:88px;height:88px;font-size:34px;border:4px solid var(--bg)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}.tabs button{background:var(--card);color:var(--fg)}.tabs button.on{background:var(--red);color:#fff}
+.tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:10px;background:var(--card)}.tag.a{background:var(--red);color:#fff}
+.acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+details{border-bottom:1px solid var(--line);padding:14px 0}summary{cursor:pointer;font-weight:700;font-size:18px}
+/* Звёзды */
+.stars{position:relative;display:inline-block;color:var(--line);letter-spacing:2px;font-size:18px;line-height:1;vertical-align:middle}
+.stars::before{content:"★★★★★"}
+.stars b{position:absolute;left:0;top:0;width:0;overflow:hidden;white-space:nowrap;color:var(--gold);font-weight:400;transition:width 1.2s cubic-bezier(.2,.7,.2,1)}
+.stars.in b{width:var(--w)}
+.si button{background:none;color:var(--line);font-size:36px;padding:2px 4px;box-shadow:none}
+.si button.on,.si:hover button{color:var(--gold)}.si:hover button:hover~button{color:var(--line)}
+.si button:hover{transform:scale(1.3) rotate(-10deg)}.si button.pulse{animation:pulse .5s}
+@keyframes pulse{50%{transform:scale(1.6)}}
+/* Модалка и уведомление */
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:30}
+#modal.on{opacity:1;pointer-events:auto}
+#modal .box{background:var(--bg);padding:24px;border-radius:6px;max-width:420px;width:100%;transform:translateY(30px) scale(.95);transition:transform .3s cubic-bezier(.2,.7,.2,1)}
+#modal.on .box{transform:none}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:4px;opacity:0;transition:all .3s;pointer-events:none;z-index:40;max-width:90%}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+.body{white-space:pre-wrap;max-width:640px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:32px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}.rv{opacity:1;transform:none}.stars b{width:var(--w)}}
+</style>
+</head>
+<body>
+<header><a class="logo" href="#/home"><i></i>Рядом</a><nav id="nav"></nav></header>
+<main id="app"></main>
+<div id="modal"></div><div id="toast"></div>
+<script>
+/* ===== API-клиент: данные живут на сервере (SQLite), в браузере только кэш для отрисовки ===== */
+let db={me:null,users:[],items:[],reviews:[],msgs:[]},sid=null;
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=t=>new Date(t).toLocaleDateString("ru-RU",{day:"numeric",month:"long",year:"numeric"});
+async function api(url,opt={}){
+  const o={credentials:"same-origin",...opt,headers:{...(opt.headers||{})}};
+  if(o.body&&!(o.body instanceof FormData)){o.headers["Content-Type"]="application/json";o.body=JSON.stringify(o.body)}
+  let r;try{r=await fetch(url,o)}catch(e){throw new Error("Нет связи с сервером")}
+  let d=null;try{d=await r.json()}catch(e){}
+  if(!r.ok)throw new Error((d&&d.error)||"Ошибка сервера ("+r.status+")");
+  return d}
+async function load(){db=await api("/api/bootstrap");sid=db.me?db.me.id:null}
+const go=h=>{if(location.hash===h)render();else location.hash=h};
+const me=()=>db.me,uBy=id=>db.users.find(u=>u.id===id),isAdm=()=>{const m=me();return m&&m.role==="admin"};
+const toast=t=>{const e=document.getElementById("toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),2800)};
+const modal=h=>{const m=document.getElementById("modal");if(h==null)m.classList.remove("on");else{m.innerHTML=`<div class="box">${h}</div>`;m.classList.add("on")}};
+document.getElementById("modal").onclick=e=>{if(e.target.id==="modal")modal()};
+const cols=["#e8332e","#2c5cff","#1b1b1b","#e0a800","#1a8f4c"];
+const av=u=>u&&u.avatar?`<div class="av" style="background-image:url('${esc(u.avatar)}')"></div>`:`<div class="av">${esc((u?u.nick:"?")[0].toUpperCase())}</div>`;
+/* Рейтинг */
+const rate=id=>{const r=db.reviews.filter(x=>x.to===id);return{n:r.length,avg:r.length?r.reduce((s,x)=>s+x.stars,0)/r.length:0}};
+const stars=v=>`<span class="stars" style="--w:${v/5*100}%"><b>★★★★★</b></span>`;
+const rateHTML=id=>{const r=rate(id);return`${stars(r.avg)} <span class="mut">${r.n?r.avg.toFixed(1)+" · отзывов: "+r.n:"нет отзывов"}</span>`};
+/* ===== Карточки ===== */
+const imgOf=(g,big)=>g.img?`<div class="ph" style="background-image:url('${esc(g.img)}')"></div>`:`<div class="ph" style="background-color:${cols[g.title.length%5]}">${esc(g.title[0])}</div>`;
+const card=(g,i)=>`<a class="card rv" data-a="scale" style="--d:${i%4*90}ms" href="#/item/${g.id}"><div class="im">${imgOf(g)}</div><div class="b"><h3>${esc(g.title)}</h3><div class="price">${Number(g.price).toLocaleString("ru-RU")} ₽</div><span class="mut">${esc((uBy(g.seller)||{}).nick||"—")}</span></div></a>`;
+const gridOf=l=>l.map(card).join("")||'<p class="mut">Ничего не найдено.</p>';
+const skel=n=>Array(n).fill('<div class="sk"></div>').join("");
+let q="";
+const fill={home:()=>[...db.items].sort((a,b)=>b.date-a.date).slice(0,4),items:()=>[...db.items].filter(g=>(g.title+g.desc).toLowerCase().includes(q.toLowerCase())).sort((a,b)=>b.date-a.date)};
+const sgrid=k=>`<div class="grid" data-sk="${k}">${skel(k==="home"?4:8)}</div>`;
+/* ===== Страницы ===== */
+let tab="items",ed={},star=0,pend=null;
+const P={
+home(){const S=[["Создайте аккаунт","Телефон и email, подтверждение кодом."],["Разместите объявление","Фото, цена и описание за минуту."],["Договоритесь","Покупатель видит контакты продавца."],["Оставьте отзыв","Оценка от 1 до 5 звёзд."]];
+return`<section class="hero"><div class="blob b1" data-px=".2"></div><div class="blob b2" data-px=".45"></div><div class="blob b3" data-px=".7"></div>
+<h1 class="rv">Вещи ищут<br>новых хозяев.</h1><p class="lead rv" style="--d:150ms">Покупайте и продавайте рядом с домом. Без комиссий, с честными отзывами.</p><div class="rv" style="--d:300ms"><a class="btn red" href="#/items">Смотреть объявления</a> <a class="btn ghost" href="#/sell" style="border:1px solid var(--line);background:none;color:var(--fg)">Продать вещь</a></div></section>
+<div class="stats"><div class="stat rv"><b data-count="${db.items.length}">0</b>объявлений</div><div class="stat rv" style="--d:100ms"><b data-count="${db.users.length}">0</b>пользователей</div><div class="stat rv" style="--d:200ms"><b data-count="${db.reviews.length}">0</b>отзывов</div><div class="stat rv" style="--d:300ms"><b data-count="${db.reviews.length?(db.reviews.reduce((s,x)=>s+x.stars,0)/db.reviews.length).toFixed(1):0}" data-dec="1">0</b>средняя оценка</div></div>
+<section class="steps"><div class="sticky"><div class="sl"><h2>Как это работает</h2><div class="bar"><i></i></div>${S.map((s,i)=>`<div class="stp"><b>${s[0]}</b><span class="mut">${s[1]}</span></div>`).join("")}</div>
+<div class="sp">${S.map((s,i)=>`<div class="sv" style="background:${cols[[0,1,2,4][i]]}"><span>${i+1}</span><p>${s[0]}</p></div>`).join("")}</div></div></section>
+<h2 class="rv">Свежие объявления</h2>${sgrid("home")}<p class="rv" style="margin-top:24px"><a class="btn" href="#/items">Все объявления</a></p>`},
+items(){return`<h1>Объявления</h1><input placeholder="Поиск по названию и описанию" oninput="q=this.value;A.refill()" value="${esc(q)}" style="max-width:420px"><p><a class="btn red" href="#/sell">Подать объявление</a></p>${sgrid("items")}`},
+item(id){const g=db.items.find(x=>x.id===id);if(!g)return"<h1>Не найдено</h1>";const s=uBy(g.seller),own=me()&&(isAdm()||sid===g.seller);
+return`<p><a href="#/items">← Все объявления</a></p><div class="two"><div class="rv" data-a="left">${imgOf(g)}</div><div class="rv" style="--d:150ms"><h1 style="font-size:clamp(30px,5vw,56px)">${esc(g.title)}</h1><div class="price" style="font-size:34px">${Number(g.price).toLocaleString("ru-RU")} ₽</div><p class="body">${esc(g.desc)}</p><p class="mut">${fmt(g.date)}</p>
+<a href="#/user/${g.seller}" style="display:flex;gap:12px;align-items:center;text-decoration:none">${av(s)}<div><b>${esc(s?s.nick:"—")}</b><br>${rateHTML(g.seller)}</div></a><div class="acts" style="margin-top:18px"><button class="red" onclick="A.contact('${g.id}')">Связаться</button>${own?`<a class="btn ghost" style="border:1px solid var(--line);background:none;color:var(--fg)" href="#/sell/${g.id}">Править</a><button class="ghost" onclick="A.delItem('${g.id}')">Удалить</button>`:""}</div></div></div>`},
+sell(id){const m=me();if(!m)return P.login();const g=db.items.find(x=>x.id===id)||{};if(g.id&&!(isAdm()||g.seller===sid))return"<h1>Нет доступа</h1>";
+return`<h1>${g.id?"Правка":"Новое объявление"}</h1><form onsubmit="return A.saveItem(event,'${g.id||""}')"><label>Название</label><input name="t" required maxlength="80" value="${esc(g.title)}"><label>Цена, ₽</label><input name="p" type="number" min="0" required value="${esc(g.price)}"><label>Описание</label><textarea name="d" rows="5" required>${esc(g.desc)}</textarea><label>Фото</label><input name="f" type="file" accept="image/*"><button class="red">${g.id?"Сохранить":"Опубликовать"}</button></form>`},
+reviews(){const us=db.users.filter(u=>rate(u.id).n).sort((a,b)=>rate(b.id).avg-rate(a.id).avg);
+return`<h1>Отзывы</h1><h2 style="margin-top:0">Рейтинг продавцов</h2>${us.map((u,i)=>`<a class="row rv" style="display:flex;gap:12px;align-items:center;text-decoration:none;--d:${i*80}ms" href="#/user/${u.id}">${av(u)}<div><b>${esc(u.nick)}</b><br>${rateHTML(u.id)}</div></a>`).join("")||'<p class="mut">Пока нет оценок.</p>'}
+<h2>Все отзывы</h2>${[...db.reviews].sort((a,b)=>b.date-a.date).map(revRow).join("")}<p class="mut">Чтобы оставить отзыв, откройте профиль продавца.</p>`},
+user(id){const u=uBy(id);if(!u)return"<h1>Пользователь не найден</h1>";const own=sid===id,rv=db.reviews.filter(r=>r.to===id).sort((a,b)=>b.date-a.date);
+return`<div class="banner"><div data-px=".15" style="${u.banner?`background-image:url('${esc(u.banner)}')`:""}"></div></div><div class="pf rv">${av(u)}<div><h2 style="margin:0">${esc(u.nick)}</h2><span class="tag ${u.role==="admin"?"a":""}">${u.role==="admin"?"администратор":"пользователь"}</span></div></div>
+<p>${rateHTML(id)}</p><p class="body">${esc(u.bio||"Описание не заполнено.")}</p>
+<h2>Объявления</h2><div class="grid">${gridOf(db.items.filter(g=>g.seller===id))}</div><h2>Отзывы</h2>${rv.map(revRow).join("")||'<p class="mut">Отзывов пока нет.</p>'}
+${!own&&me()?`<h3 style="margin-top:28px">Ваша оценка</h3><form onsubmit="return A.addRev(event,'${id}')"><div class="si">${[1,2,3,4,5].map(n=>`<button type="button" data-n="${n}" onclick="A.star(${n})">★</button>`).join("")}</div><textarea name="t" rows="3" required maxlength="600" placeholder="Расскажите, как всё прошло"></textarea><button class="red">Отправить отзыв</button></form>`:!me()?'<p><a href="#/login">Войдите</a>, чтобы оставить отзыв.</p>':""}
+${own?`<h2>Редактировать профиль</h2><form onsubmit="return A.saveProf(event)"><label>Никнейм</label><input name="n" value="${esc(u.nick)}" required minlength="3" maxlength="20"><label>Описание</label><textarea name="b" rows="3" maxlength="300">${esc(u.bio)}</textarea><label>Аватар</label><input name="a" type="file" accept="image/*"><label>Баннер</label><input name="bn" type="file" accept="image/*"><label>Текущий пароль (для смены)</label><input name="op" type="password"><label>Новый пароль (от 6 символов)</label><input name="np" type="password" minlength="6"><button class="red">Сохранить</button> <button type="button" class="ghost" onclick="A.logout()">Выйти</button></form>`:""}`},
+profile(){return sid?P.user(sid):P.login()},
+support(){const m=me();return`<h1>Поддержка</h1><div class="two"><div class="rv"><h2 style="margin-top:0">Написать нам</h2><form onsubmit="return A.sendMsg(event)"><label>Имя</label><input name="n" required maxlength="60" value="${m?esc(m.nick):""}"><label>Эл. почта</label><input name="e" type="email" required value="${m&&m.email?esc(m.email):""}"><label>Сообщение</label><textarea name="t" rows="5" required maxlength="2000"></textarea><button class="red">Отправить сообщение</button></form><p class="mut">help@ryadom.example<br>+7 (900) 000-00-00, ежедневно 10–19</p></div>
+<div class="rv" style="--d:150ms"><h2 style="margin-top:0">Частые вопросы</h2><details><summary>Как связаться с продавцом?</summary><p>Откройте объявление и нажмите «Связаться». Контакты видны после входа.</p></details><details><summary>Как оставить отзыв?</summary><p>Зайдите в профиль продавца, выберите оценку и напишите пару слов.</p></details><details><summary>Забыл пароль</summary><p>Напишите нам через форму, администратор поможет.</p></details><details><summary>Это платно?</summary><p>Нет, размещение бесплатное.</p></details></div></div>`},
+login(){return`<h1>Вход</h1><div class="two"><form class="rv" onsubmit="return A.login(event)"><h2 style="margin-top:0">Войти</h2><label>Телефон, email или логин</label><input name="n" required autocomplete="username"><label>Пароль</label><input name="p" type="password" required autocomplete="current-password"><button class="red">Войти</button></form>
+<form class="rv" style="--d:150ms" onsubmit="return A.reg(event)"><h2 style="margin-top:0">Регистрация</h2><label>Никнейм (3–20 символов)</label><input name="n" required maxlength="20"><label>Телефон</label><input name="ph" type="tel" required placeholder="+7 900 000-00-00"><label>Эл. почта</label><input name="e" type="email" required><label>Пароль (от 6 символов)</label><input name="p" type="password" required minlength="6" autocomplete="new-password"><button>Получить код</button></form></div>`},
+admin(){if(!isAdm())return"<h1>Нет доступа</h1>";const T={items:"Объявления",users:"Пользователи",reviews:"Отзывы",msgs:"Поддержка ("+db.msgs.length+")"};
+return`<h1>Админ-панель</h1><div class="tabs">${Object.keys(T).map(k=>`<button class="${tab===k?"on":""}" onclick="tab='${k}';render()">${T[k]}</button>`).join("")}</div>${AD[tab]()}`}
+};
+const revRow=r=>{const f=uBy(r.from),t=uBy(r.to);return`<div class="row rv" style="display:flex;gap:12px">${av(f)}<div style="flex:1"><b>${esc(f?f.nick:"—")}</b> → <a href="#/user/${r.to}">${esc(t?t.nick:"—")}</a> ${stars(r.stars)} <span class="mut">${fmt(r.date)}</span><div>${esc(r.text)}</div>${isAdm()||sid===r.from?`<div class="acts"><button class="sm ghost" onclick="A.del('reviews','${r.id}')">Удалить</button></div>`:""}</div></div>`};
+const AD={
+items(){return db.items.map(g=>`<div class="row"><b>${esc(g.title)}</b> — ${g.price} ₽ <span class="mut">${esc((uBy(g.seller)||{}).nick)}</span><div class="acts"><a class="btn sm" href="#/sell/${g.id}">Править</a><button class="sm ghost" onclick="A.delItem('${g.id}')">Удалить</button></div></div>`).join("")},
+users(){return db.users.map(u=>`<div class="row" style="display:flex;gap:12px;align-items:center">${av(u)}<div style="flex:1"><b>${esc(u.nick)}</b> <span class="tag ${u.role==="admin"?"a":""}">${u.role}</span><div class="mut">${esc(u.phone||"без телефона")}, ${esc(u.email||"без email")}</div></div>${u.id!==sid?`<button class="sm" onclick="A.role('${u.id}')">${u.role==="admin"?"В юзеры":"В админы"}</button><button class="sm ghost" onclick="A.delUser('${u.id}')">Удалить</button>`:""}</div>`).join("")},
+reviews(){return db.reviews.map(revRow).join("")||'<p class="mut">Нет отзывов.</p>'},
+msgs(){return db.msgs.map(m=>`<div class="row"><b>${esc(m.name)}</b> <a href="mailto:${esc(m.email)}">${esc(m.email)}</a> <span class="mut">${fmt(m.date)}</span><div class="body">${esc(m.text)}</div><div class="acts"><button class="sm ghost" onclick="A.del('msgs','${m.id}')">Удалить</button></div></div>`).join("")||'<p class="mut">Сообщений нет.</p>'}
+};
+/* ===== Действия (роли проверяются в каждом) ===== */
+const fd=e=>{e.preventDefault();return Object.fromEntries(new FormData(e.target))};
+const post=(u,b,m="POST")=>api(u,{method:m,body:b});
+const after=async(msg,hash)=>{await load();if(msg)toast(msg);hash?go(hash):render()};
+const A={
+async reg(e){const f=fd(e);
+  const r=await post("/api/auth/register",{nick:f.n,phone:f.ph,email:f.e,password:f.p});pend=r;
+  modal(`<h3>Подтверждение</h3><p class="mut">Код отправлен на ${esc(r.phone)} и ${esc(r.email)}.</p><form onsubmit="return A.verify(event)"><input name="c" inputmode="numeric" maxlength="4" required placeholder="Код из 4 цифр"><button class="red">Подтвердить</button></form>`);
+  if(r.demoCode)toast("Демо-режим: ваш код "+r.demoCode);return false},
+async verify(e){const f=fd(e);await post("/api/auth/verify",{pendingId:pend.pendingId,code:f.c});pend=null;modal();await after("Аккаунт создан","#/profile");return false},
+async login(e){const f=fd(e),r=await post("/api/auth/login",{login:f.n,password:f.p});await after("Добро пожаловать, "+r.nick,r.role==="admin"?"#/admin":"#/home");return false},
+async logout(){await post("/api/auth/logout");await after("Вы вышли","#/home")},
+async saveProf(e){e.preventDefault();const f=new FormData(e.target),o=new FormData();
+  o.set("nick",f.get("n").trim());o.set("bio",f.get("b"));o.set("oldPassword",f.get("op"));o.set("newPassword",f.get("np"));
+  if(f.get("a").size)o.set("avatar",f.get("a"));if(f.get("bn").size)o.set("banner",f.get("bn"));
+  await api("/api/profile",{method:"PUT",body:o});await after("Профиль сохранён");return false},
+async saveItem(e,id){e.preventDefault();const f=new FormData(e.target),o=new FormData();
+  o.set("title",f.get("t"));o.set("price",f.get("p"));o.set("description",f.get("d"));if(f.get("f").size)o.set("photo",f.get("f"));
+  await api(id?"/api/listings/"+id:"/api/listings",{method:id?"PUT":"POST",body:o});await after("Сохранено","#/items");return false},
+async delItem(id){if(!confirm("Удалить объявление?"))return;await api("/api/listings/"+id,{method:"DELETE"});await after("Удалено",location.hash==="#/admin"?"#/admin":"#/items")},
+async contact(id){if(!me()){toast("Войдите, чтобы увидеть контакты");location.hash="#/login";return}
+  const s=await api("/api/listings/"+id+"/contact");
+  modal(`<h3>Контакты продавца</h3><p><b>${esc(s.nick)}</b></p><p>${s.phone?"Телефон: "+esc(s.phone):"Телефон не указан"}<br>${s.email?"Почта: "+esc(s.email):"Почта не указана"}</p>${!s.phone&&!s.email?'<p class="mut">Свяжитесь через раздел «Поддержка».</p>':""}<button onclick="modal()">Закрыть</button>`)},
+star(n){star=n;document.querySelectorAll(".si button").forEach((b,i)=>{b.classList.toggle("on",i<n);b.classList.remove("pulse");if(i+1===n){void b.offsetWidth;b.classList.add("pulse")}})},
+async addRev(e,to){const f=fd(e);if(!star)return toast("Выберите оценку"),false;
+  await post("/api/reviews",{to,stars:star,text:f.t});star=0;await after("Отзыв опубликован");return false},
+async sendMsg(e){const f=fd(e);await post("/api/support",{name:f.n,email:f.e,text:f.t});e.target.reset();toast("Сообщение отправлено");return false},
+async del(col,id){if(!confirm("Удалить?"))return;await api(col==="reviews"?"/api/reviews/"+id:"/api/admin/support/"+id,{method:"DELETE"});await after()},
+async role(id){await post("/api/admin/users/"+id+"/role",null,"PATCH");await after()},
+async delUser(id){if(!confirm("Удалить пользователя, его объявления и отзывы?"))return;await api("/api/admin/users/"+id,{method:"DELETE"});await after()},
+refill(){const el=document.querySelector('[data-sk="items"]');if(el){el.innerHTML=gridOf(fill.items());io_scan()}}
+};
+/* Любая ошибка API показывается уведомлением; вызовы остаются синхронными до первого await (preventDefault успевает сработать) */
+Object.keys(A).forEach(k=>{const f=A[k];A[k]=async(...a)=>{try{return await f(...a)}catch(err){toast(err.message);return false}}});
+/* ===== Анимации ===== */
+const io=new IntersectionObserver(es=>es.forEach(en=>{if(!en.isIntersecting)return;const el=en.target;io.unobserve(el);
+  if(el.dataset.count!==undefined){const t=+el.dataset.count,dec=+el.dataset.dec||0,s=performance.now();(function f(n){const k=Math.min(1,(n-s)/1400),v=t*(1-Math.pow(1-k,3));el.textContent=v.toFixed(dec);if(k<1)requestAnimationFrame(f)})(s)}
+  else{el.classList.add("in");setTimeout(()=>el.style.setProperty("--d","0ms"),1000)}}),{threshold:.12});
+function io_scan(){document.querySelectorAll(".rv:not(.seen),.stars:not(.seen),[data-count]:not(.seen)").forEach(e=>{e.classList.add("seen");io.observe(e)})}
+let tick=false;
+function frame(){tick=false;
+  document.querySelectorAll("[data-px]").forEach(e=>{const r=e.parentElement.getBoundingClientRect();if(r.bottom>-200&&r.top<innerHeight+200)e.style.transform=`translate3d(0,${-r.top*e.dataset.px}px,0)`});
+  const s=document.querySelector(".steps");if(s){const r=s.getBoundingClientRect(),p=Math.max(0,Math.min(.999,-r.top/(r.height-innerHeight))),i=Math.floor(p*4);
+    s.querySelectorAll(".stp").forEach((e,k)=>e.classList.toggle("on",k===i));s.querySelectorAll(".sv").forEach((e,k)=>{e.classList.toggle("on",k===i);e.classList.toggle("past",k<i)});s.querySelector(".bar i").style.width=(p*100)+"%"}}
+addEventListener("scroll",()=>{if(!tick){tick=true;requestAnimationFrame(frame)}},{passive:true});
+/* ===== Роутер ===== */
+function render(){const[p="home",a]=location.hash.slice(2).split("/"),page=P[p]||P.home,m=me(),app=document.getElementById("app");
+  document.getElementById("nav").innerHTML=[["items","Объявления"],["reviews","Отзывы"],["support","Поддержка"],...(isAdm()?[["admin","Админка"]]:[]),m?["profile",m.nick]:["login","Войти"]].map(([k,t])=>`<a href="#/${k}" class="${p===k?"on":""}">${esc(t)}</a>`).join("");
+  app.innerHTML=page(a);app.classList.remove("pg");void app.offsetWidth;app.classList.add("pg");
+  io_scan();frame();
+  app.querySelectorAll("[data-sk]").forEach(el=>setTimeout(()=>{if(el.isConnected){el.innerHTML=gridOf(fill[el.dataset.sk]());io_scan()}},550))}
+addEventListener("hashchange",()=>{modal();scrollTo({top:0,behavior:"instant"});render()});
+load().then(render).catch(e=>{document.getElementById("app").innerHTML="<h1>Сервер недоступен</h1><p>"+esc(e.message)+"</p>"});
+</script>
+</body>
+</html>
