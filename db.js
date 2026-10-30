@@ -77,7 +77,7 @@ function seed() {
   addRev.run(2, 3, 5, "Быстро договорились, всё как в описании.", now - 2 * day);
   addRev.run(2, 1, 4, "Хороший продавец, немного задержала ответ.", now - day);
   addRev.run(3, 2, 5, "Отличный покупатель, рекомендую.", now - day);
-  console.log("[seed] Созданы тестовые данные. Админ: root / " + adminPass);
+  console.log("[seed] Созданы тестовые данные. Админ: root (пароль — в переменной ADMIN_PASSWORD)");
 }
 
 module.exports = { db, seed, ROOT };
